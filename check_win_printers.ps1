@@ -1,3 +1,7 @@
+# https://support.microsoft.com/en-us/kb/160129 
+# https://support.microsoft.com/en-us/kb/158828
+# http://www.powertheshell.com/reference/wmireference/root/cimv2/win32_printer/
+
 Param(
     [string]$file = "C:\TEMP\check_win_printers.csv",
     [string]$daysOffline = "1"
@@ -9,6 +13,8 @@ $dateOffline = $dateNow.AddDays(-$daysOffline)
 $returnCode = 0
 $returnMsg = ""
 $offlinePrinters = @()
+$cofflinePrinters = "0"
+$cPrinters = "0"
 
 If (Test-Path $file) { $previousList = Import-Csv $file }
 Else { $previousList = @() }
@@ -42,30 +48,53 @@ $currentList | ForEach-Object {
 
     # Check if outdated conditions are met
     If ((Get-Date $date) -le (Get-Date $dateOffline)) {
-        $returnCode = 2
         $offlinePrinters += $name
     }
 
     $printer = New-Object PSObject
     $printer | Add-Member -membertype NoteProperty -name "name" -Value $name
     $printer | Add-Member -membertype NoteProperty -name "date" -Value $date
+	$printer | Add-Member -membertype NoteProperty -name "status" -Value $status
 
     $newList += $printer
 }
 
 $newList | Export-Csv -Path $file -NoTypeInformation
 
+# int all printers (total printers)
+$cPrinters = $newList.Length
+# int offlinePrinters (total offline printers)
+$cofflinePrinters = $offlinePrinters.Length
+
 $returnMsg = "Offline printers: "
 
+if ($cofflinePrinters -gt 1 ) {
+    $returnCode = 1
+}
+
+if ($cofflinePrinters -gt 2 ) {
+    $returnCode = 2
+}
+
+if ($cPrinters -lt 1 ) {
+    $returnCode = 2
+	$returnMsg = "No printers!: "
+}
+
 # Print
-If ($offlinePrinters.Length -eq 0) { $returnMsg += "0" }
-Else {
-    For ($pos=0; $pos -lt $offlinePrinters.Length; $pos++) {
+If ($cofflinePrinters -eq 0) { $returnMsg += "0" }
+Else {	
+    For ($pos=0; $pos -lt $cofflinePrinters; $pos++) {
         $returnMsg += $offlinePrinters[$pos]
-        If (($pos + 1) -lt $offlinePrinters.Length) { $returnMsg += ", " }
+        If (($pos + 1) -lt $cofflinePrinters) { $returnMsg += ", " }
         Else { $returnMsg += "." }
     }
 }
+
+# Add performance data
+$returnMsg += "`n"
+$returnMsg += "offlines=$cofflinePrinters;1;2;0;;"
+$returnMsg += "printers=$cPrinters;0;0;1;;"
 
 Write-Host $returnMsg
 Exit $returnCode
