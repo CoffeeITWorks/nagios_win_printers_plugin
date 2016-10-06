@@ -15,20 +15,27 @@ nsclient
 
 El plugin debe que estar en todos los servidores de impresión, C:\scripts\check_win_printers.ps1 (*usar rol de ansible para nsclient*)
 
-Contenido para NSC.ini de cada servidor de impresión (*usar rol de ansible para nsclient*):
-check_win_printers=powershell -ExecutionPolicy Bypass -File c:\scripts\check_win_printers.ps1 -File $ARG1$ -DaysOffline $ARG2$
+Contenido para *NSC.ini* de cada servidor de impresión (*usar rol de ansible para nsclient*):
+
+Ejemplo:
+
+    ; A list of scripts available to run from the CheckExternalScripts module. Syntax is: <command>=<script> <arguments>
+    [/settings/external scripts/scripts]
+	; --- omitted lines ---
+    check_win_printers=powershell -ExecutionPolicy Bypass -File c:\scripts\check_win_printers.ps1 -File $ARG1$ -DaysOffline $ARG2$
+
 
 Definición en Nagios:
+---------------------
 
 Comando: 
 
 	define command{ 
 			command_name                  check_nrpe_win_printers 
-			command_line                     /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -p 5666 -t 60 -c check_win_printers -a $ARG1$ $ARG2$ 
+			command_line                  /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -p 5666 -t 60 -c check_win_printers -a $ARG1$ $ARG2$ 
 	} 
   
-Nagios service
---------------
+
 
 Servicio (*usar rol de ansible para nagios_config*):
 
