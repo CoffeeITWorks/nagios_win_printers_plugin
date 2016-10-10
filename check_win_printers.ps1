@@ -1,10 +1,21 @@
+<#
+.Synopsis
+    Get list of printers added to the system and returns 0, 1, 2 depending if it founds offline printers. also returns perfdata for nagios. 
+.DESCRIPTION
+    Get list of printers added to the system and returns 0, 1, 2 depending if it founds offline printers. also returns perfdata for nagios. 
+    It can also saves the last seen online date (or last check date if it was offline at that time, and compares dates using -daysOffline x). 
+.EXAMPLE
+    ./check_win_printers.ps1 -daysOffline 0 
+.EXAMPLE
+    ./check_win_printers.ps1 -daysOffline 1
+#>
 # https://support.microsoft.com/en-us/kb/160129 
 # https://support.microsoft.com/en-us/kb/158828
 # http://www.powertheshell.com/reference/wmireference/root/cimv2/win32_printer/
 
 Param(
     [string]$file = "C:\TEMP\check_win_printers.csv",
-    [string]$daysOffline = "1"
+    [int]$daysOffline = 0
 )
 
 $dateNow = [DateTime]::Now
@@ -47,7 +58,7 @@ $currentList | ForEach-Object {
     }
 
     # Check if outdated conditions are met
-    If ((Get-Date $date) -le (Get-Date $dateOffline)) {
+    If ((Get-Date $date) -lt (Get-Date $dateOffline)) {
         $offlinePrinters += $name
     }
 
@@ -55,6 +66,7 @@ $currentList | ForEach-Object {
     $printer | Add-Member -membertype NoteProperty -name "name" -Value $name
     $printer | Add-Member -membertype NoteProperty -name "date" -Value $date
 	$printer | Add-Member -membertype NoteProperty -name "status" -Value $status
+	$printer | Add-Member -membertype NoteProperty -name "state" -Value $state
 
     $newList += $printer
 }
