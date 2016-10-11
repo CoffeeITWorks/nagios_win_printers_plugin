@@ -12,6 +12,8 @@
 # https://support.microsoft.com/en-us/kb/160129 
 # https://support.microsoft.com/en-us/kb/158828
 # http://www.powertheshell.com/reference/wmireference/root/cimv2/win32_printer/
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/perfdata.html
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/plugins.html
 
 Param(
     [string]$file = "C:\TEMP\check_win_printers.csv",
@@ -20,6 +22,7 @@ Param(
 
 $dateNow = [DateTime]::Now
 $dateOffline = $dateNow.AddDays(-$daysOffline)
+$stopwatch = [system.diagnostics.stopwatch]::startNew()
 
 $returnCode = 0
 $returnMsg = ""
@@ -103,10 +106,27 @@ Else {
     }
 }
 
+# Manage some information for ran time
+$stopwatch.stop()
+$elapsed = $stopwatch.elapsed.seconds
+
+if ($elapsed -ge 8 ) {
+    $returnCode = 1
+	$returnMsg = "Warning script took more than 8s to ran"
+}
+if ($elapsed -ge 9 ) {
+    $returnCode = 2
+	$returnMsg = "Critical script took more than 8s to ran"
+}
+
 # Add performance data
-$returnMsg += "`n"
-$returnMsg += "offlines=$cofflinePrinters;1;2;0;;"
-$returnMsg += "printers=$cPrinters;0;0;1;;"
+# https://nagios-plugins.org/doc/guidelines.html#AEN200
+# 'label'=value[UOM];[warn];[crit];[min];[max]
+# space is required after each label
+$returnMsg += "|"  # Separator for perfdata https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/perfdata.html
+$returnMsg += "'offlines'=$cofflinePrinters;1;2;0;; "
+$returnMsg += "'printers'=$cPrinters;0;0;1;; "
+$returnMsg += "'runtime'=$($elapsed)s;8;9;0;10 "
 
 Write-Host $returnMsg
 Exit $returnCode
