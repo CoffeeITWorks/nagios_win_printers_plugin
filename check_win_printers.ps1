@@ -83,7 +83,7 @@ $cofflinePrinters = $offlinePrinters.Length
 
 $returnMsg = "Offline printers: "
 
-if ($cofflinePrinters -gt 1 ) {
+if ($cofflinePrinters -ge 1 ) {
     $returnCode = 1
 }
 
