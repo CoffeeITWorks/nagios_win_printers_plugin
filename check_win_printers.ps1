@@ -68,8 +68,8 @@ $currentList | ForEach-Object {
     $printer = New-Object PSObject
     $printer | Add-Member -membertype NoteProperty -name "name" -Value $name
     $printer | Add-Member -membertype NoteProperty -name "date" -Value $date
-	$printer | Add-Member -membertype NoteProperty -name "status" -Value $status
-	$printer | Add-Member -membertype NoteProperty -name "state" -Value $state
+    $printer | Add-Member -membertype NoteProperty -name "status" -Value $status
+    $printer | Add-Member -membertype NoteProperty -name "state" -Value $state
 
     $newList += $printer
 }
@@ -78,22 +78,23 @@ $newList | Export-Csv -Path $file -NoTypeInformation
 
 # int all printers (total printers)
 $cPrinters = $newList.Length
+
 # int offlinePrinters (total offline printers)
 $cofflinePrinters = $offlinePrinters.Length
 
 $returnMsg = "Offline printers: "
 
-if ($cofflinePrinters -ge 1 ) {
+If ($cofflinePrinters -ge 1 ) {
     $returnCode = 1
 }
 
-if ($cofflinePrinters -gt 2 ) {
+If ($cofflinePrinters -gt 2 ) {
     $returnCode = 2
 }
 
-if ($cPrinters -lt 1 ) {
+If ($cPrinters -lt 1 ) {
     $returnCode = 2
-	$returnMsg = "No printers!: "
+    $returnMsg = "No printers!: "
 }
 
 # Print
@@ -107,16 +108,16 @@ Else {
 }
 
 # Manage some information for ran time
-$stopwatch.stop()
-$elapsed = $stopwatch.elapsed.seconds
+$stopwatch.Stop()
+$elapsed = $stopwatch.Elapsed.Seconds
 
-if ($elapsed -ge 8 ) {
+If ($elapsed -ge 8 ) {
     $returnCode = 1
-	$returnMsg = "Warning script took more than 8s to ran"
+    $returnMsg = "Warning script took more than 8s to ran"
 }
-if ($elapsed -ge 9 ) {
+If ($elapsed -ge 9 ) {
     $returnCode = 2
-	$returnMsg = "Critical script took more than 8s to ran"
+    $returnMsg = "Critical script took more than 8s to ran"
 }
 
 # Add performance data
