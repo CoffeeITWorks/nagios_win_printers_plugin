@@ -125,7 +125,7 @@ If ($elapsed -ge 9 ) {
 # 'label'=value[UOM];[warn];[crit];[min];[max]
 # space is required after each label
 $returnMsg += "|"  # Separator for perfdata https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/perfdata.html
-$returnMsg += "'offlines'=$cofflinePrinters;1;2;0;; "
+$returnMsg += "'offlines'=$cofflinePrinters;1;3;0;; "
 $returnMsg += "'printers'=$cPrinters;0;0;1;; "
 $returnMsg += "'runtime'=$($elapsed)s;8;9;0;10 "
 
